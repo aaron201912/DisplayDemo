@@ -2,6 +2,8 @@
 #include "uart/ProtocolSender.h"
 #include "SsPlayer.h"
 #include "mouse.h"
+#include "tp_api.h"
+#include <config.h>
 /*
 *此文件由GUI工具生成
 *文件功能：用于处理用户的逻辑相应代码
@@ -31,15 +33,25 @@
 *
 * 在Eclipse编辑器中  使用 “alt + /”  快捷键可以打开智能提示
 */
+#if UI_1024_600
+#define PANEL_WIDTH		    600
+#define PANEL_HEIGHT	    1024
 
-#define PANEL_WIDTH		600
-#define PANEL_HEIGHT	1024
-
-#define WADGET_WIDTH	600
-#define WADGET_HEIGHT	450
+#define WADGET_WIDTH	    600
+#define WADGET_HEIGHT	    450
 
 #define TEXT_WADGET_WIDTH	600
 #define TEXT_WADGET_HEIGHT	124
+
+#define VIDEO_POS_START     0
+#define VIDEO_POS_END       WADGET_HEIGHT
+
+#define JPEG_POS_START      VIDEO_POS_END
+#define JPEG_POS_END        (VIDEO_POS_END + WADGET_HEIGHT)
+
+#define TEXT_POS_START      (PANEL_HEIGHT - TEXT_WADGET_HEIGHT)
+#define TEXT_POS_END        PANEL_HEIGHT
+#endif
 
 static void updateAnimation() {
     char path[64];
@@ -106,7 +118,9 @@ static S_ACTIVITY_TIMEER REGISTER_ACTIVITY_TIMER_TAB[] = {
  */
 static void onUI_init(){
     //Tips :添加 UI初始化的显示代码到这里,如:mText1Ptr->setText("123");
-
+    system("echo 12 > /sys/class/gpio/export");
+    system("echo out > /sys/class/gpio/gpio12/direction");
+    system("echo 1 > /sys/class/gpio/gpio12/value");
 }
 
 /**
@@ -122,9 +136,12 @@ static void onUI_intent(const Intent *intentPtr) {
  * 当界面显示时触发
  */
 static void onUI_show() {
-	StartPlayVideo ("/customer/demo.mp4",20,30,300,200);
-	initMouseDev();
-
+    #if SS_PLAYER_SWITCH
+    tp_player_open ("/customer/demo.mp4",20,30,300,200,1);
+    #else
+    StartPlayVideo ("/customer/demo.mp4",20,30,300,200);
+    #endif
+    initMouseDev();
 }
 
 /*
@@ -186,7 +203,7 @@ static bool onmainActivityTouchEvent(const MotionEvent &ev) {
 		{
 			//JPEG
 			//if(mTextview1Ptr->isVisible() && mTextview1Ptr->getPosition().isHit(ev.mX, ev.mY))
-			if((ev.mY > 450 && ev.mY <= 900))
+			if((ev.mY > JPEG_POS_START && ev.mY <= JPEG_POS_END))
 			{
 				static LayoutPosition pos = mTextview1Ptr->getPosition();
 
@@ -201,7 +218,7 @@ static bool onmainActivityTouchEvent(const MotionEvent &ev) {
 			}
 			//VIDEO
 			//if(mVideoview1Ptr->isVisible() && mVideoview1Ptr->getPosition().isHit(ev.mX, ev.mY))
-			if((ev.mY >= 0 && ev.mY <= 450))
+			if((ev.mY >= VIDEO_POS_START && ev.mY <= VIDEO_POS_END))
 			{
 				static LayoutPosition pos = mVideoview1Ptr->getPosition();
 		    	pos.mWidth = PANEL_WIDTH - ev.mX;
@@ -212,15 +229,20 @@ static bool onmainActivityTouchEvent(const MotionEvent &ev) {
 
 		    	printf("move video: %d,%d,%d,%d\n",pos.mLeft,pos.mTop,pos.mWidth,pos.mHeight);
 		    	mVideoview1Ptr->setPosition(pos);
+
+				#if SS_PLAYER_SWITCH
+		    	tp_player_close();
+		    	usleep(100 * 1000);
+		    	tp_player_open ("/customer/demo.mp4",pos.mLeft,pos.mTop,pos.mWidth,pos.mHeight,1);
+				#else
 		    	StopPlayVideo();
 		    	printf("+++++StartPlayVideo+++++++++\n");
 		    	StartPlayVideo ("/customer/demo.mp4",pos.mLeft,pos.mTop,pos.mWidth,pos.mHeight);
-
-
+				#endif
 			}
 			//TEXT
 			//if(mTextview2Ptr->isVisible() && mTextview2Ptr->getPosition().isHit(ev.mX, ev.mY))
-			if((ev.mY > 900 && ev.mY <= 1024))
+			if((ev.mY > TEXT_POS_START && ev.mY <= TEXT_POS_END))
 			{
 				static LayoutPosition pos = mTextview2Ptr->getPosition();
 		    	pos.mWidth = PANEL_WIDTH - ev.mX;

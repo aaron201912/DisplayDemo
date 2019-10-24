@@ -392,11 +392,13 @@ typedef  struct  MI_SYS_BufInfo_s
 
 typedef struct MI_SYS_FrameBufExtraConfig_s
 {
-  //Buf alighment requirement in horizontal
+  //Buf alignment requirement in horizontal
   MI_U16 u16BufHAlignment;
-  //Buf alighment requirement in vertical
+  //Buf alignment requirement in vertical
   MI_U16 u16BufVAlignment;
-  //Clear Padding flag
+  //Buf alignment requirement in chroma
+  MI_U16 u16BufChromaAlignment;
+  //Clear padding flag
   MI_BOOL bClearPadding;
 }MI_SYS_FrameBufExtraConfig_t;
 

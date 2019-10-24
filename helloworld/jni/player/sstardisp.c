@@ -10,10 +10,7 @@
 #include "mi_disp_datatype.h"
 #include "mi_disp.h"
 
-
-#define UI_1024_600 1
-#define USE_MIPI    0
-
+#include <config.h>
 
 #if UI_1024_600
 #include "SAT070CP50_1024x600.h"
@@ -51,13 +48,13 @@ extern "C"{
 #endif
 int sstar_disp_init(MI_DISP_PubAttr_t *pstDispPubAttr,int inputwidth,int inputheight)
 {
-    MI_PANEL_LinkType_e eLinkType;
+    //MI_PANEL_LinkType_e eLinkType;
     MI_DISP_InputPortAttr_t stInputPortAttr;
 
     memset(&stInputPortAttr, 0, sizeof(stInputPortAttr));
 
     //MI_SYS_Init();
-#if 1
+#if 0
     if (pstDispPubAttr->eIntfType == E_MI_DISP_INTF_LCD)
     {
         pstDispPubAttr->stSyncInfo.u16Vact = stPanelParam.u16Height;
@@ -96,7 +93,7 @@ int sstar_disp_init(MI_DISP_PubAttr_t *pstDispPubAttr,int inputwidth,int inputhe
     stInputPortAttr.stDispWin.u16Y = pos.x;//LOCAL_VIDEO_Y;
     stInputPortAttr.stDispWin.u16Width = pos.height;//inputheight;//pos.height;
     stInputPortAttr.stDispWin.u16Height = pos.width;//inputwidth;//pos.width;
-#if 1
+#if 0
     MI_DISP_SetPubAttr(0, pstDispPubAttr);
     MI_DISP_Enable(0);
     MI_DISP_BindVideoLayer(0, 0);

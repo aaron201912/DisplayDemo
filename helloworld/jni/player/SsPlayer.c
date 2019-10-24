@@ -36,6 +36,7 @@
 #include "mi_disp_datatype.h"
 
 #include "sstardisp.h"
+#include <config.h>
 
 //sdk audio input/outout param
 #define     AUDIO_INPUT_SAMPRATE       48000
@@ -248,7 +249,7 @@ static MI_S32 ST_Hdmi_Init(void)
     STCHECKRESULT(MI_HDMI_Init(&stInitParam));
     STCHECKRESULT(MI_HDMI_Open(eHdmi));
 
-	return MI_SUCCESS;
+    return MI_SUCCESS;
 }
 
 static MI_S32 ST_Hdmi_DeInit(MI_HDMI_DeviceId_e eHdmi)
@@ -534,10 +535,10 @@ int sdk_Deinit(void)
     //ST_Hdmi_DeInit(0);
     MI_DISP_DisableInputPort(0 ,0);
     
-    MI_DISP_DisableVideoLayer(0);
-    MI_DISP_UnBindVideoLayer(0, 0);
+    //MI_DISP_DisableVideoLayer(0);
+    //MI_DISP_UnBindVideoLayer(0, 0);
 
-     MI_DISP_Disable(0);
+    //MI_DISP_Disable(0);
 
     ss_ao_Deinit();
     //STCHECKRESULT(MI_SYS_Exit());
@@ -568,7 +569,7 @@ int sdk_bind(void)
 
 int sdk_Init(AVCodecContext *pVideoCodeCtx)
 {
-    MI_VDEC_ChnAttr_t stVdecChnAttr;
+    //MI_VDEC_ChnAttr_t stVdecChnAttr;
     MI_SYS_ChnPort_t stChnPort;
     MI_SYS_ChnPort_t stSrcChnPort;
     MI_SYS_ChnPort_t stDstChnPort;
@@ -602,10 +603,10 @@ int sdk_Init(AVCodecContext *pVideoCodeCtx)
     STCHECKRESULT(MI_SYS_SetChnOutputPortDepth(&stChnPort, 0, 6));
 #endif
     //init disp
-    stDispPubAttr.eIntfType = E_MI_DISP_INTF_LCD;
-    stDispPubAttr.eIntfSync = E_MI_DISP_OUTPUT_USER;
-    stDispPubAttr.u32BgColor = YUYV_BLACK;
-
+//    stDispPubAttr.eIntfType = E_MI_DISP_INTF_LCD;
+//    stDispPubAttr.eIntfSync = E_MI_DISP_OUTPUT_USER;
+//    stDispPubAttr.u32BgColor = YUYV_BLACK;
+    // 此处输入的宽高是对齐后vdec缩放的宽高,实际显示在panel上的图像宽高需要拉伸
     sstar_disp_init(&stDispPubAttr,pVideoCodeCtx->flags,pVideoCodeCtx->flags2);
     
     //usleep(2*1000*1000);
@@ -625,7 +626,7 @@ int sdk_Init(AVCodecContext *pVideoCodeCtx)
     //init audio
     ss_ao_Init();
     
-	return 0;
+    return 0;
 }
 
 static void *PlayVideoThread (void *args)
@@ -681,26 +682,26 @@ static void *PlayVideoThread (void *args)
 
     printf("video code width: %d,height: %d,codeid: %d\n",pVideoCodeCtx->width,pVideoCodeCtx->height,pVideoCodeCtx->codec_id);
 
-	if((pVideoCodeCtx->width > pos.width) || (pVideoCodeCtx->height > pos.height))
-	{
-		if(pVideoCodeCtx->width > pVideoCodeCtx->height)
-		{
-			pVideoCodeCtx->flags = ALIGN_BACK(pos.width,32); //scale down width
-			pVideoCodeCtx->flags2 = ALIGN_BACK(pVideoCodeCtx->height * pos.width / pVideoCodeCtx->width,32);
-		}
-		else
-		{
-			pVideoCodeCtx->flags2 = ALIGN_BACK(pos.height,32); //scale down height
-			pVideoCodeCtx->flags = ALIGN_BACK(pVideoCodeCtx->width * pos.height / pVideoCodeCtx->height,32);
-		}
-	}
-	else
-	{
-		pVideoCodeCtx->flags = ALIGN_BACK(pVideoCodeCtx->width,32);
-		pVideoCodeCtx->flags2 = ALIGN_BACK(pVideoCodeCtx->height,32);
-	}
+    if((pVideoCodeCtx->width > pos.width) || (pVideoCodeCtx->height > pos.height))
+    {
+        if(pVideoCodeCtx->width > pVideoCodeCtx->height)
+        {
+            pVideoCodeCtx->flags = ALIGN_BACK(pos.width,32); //scale down width
+            pVideoCodeCtx->flags2 = ALIGN_BACK(pVideoCodeCtx->height * pos.width / pVideoCodeCtx->width,32);
+        }
+        else
+        {
+            pVideoCodeCtx->flags2 = ALIGN_BACK(pos.height,32); //scale down height
+            pVideoCodeCtx->flags = ALIGN_BACK(pVideoCodeCtx->width * pos.height / pVideoCodeCtx->height,32);
+        }
+    }
+    else
+    {
+        pVideoCodeCtx->flags = ALIGN_BACK(pVideoCodeCtx->width,32);
+        pVideoCodeCtx->flags2 = ALIGN_BACK(pVideoCodeCtx->height,32);
+    }
 
-	printf("pVideoCodeCtx flags: %d,flags2: %d\n",pVideoCodeCtx->flags,pVideoCodeCtx->flags2);
+    printf("pVideoCodeCtx flags: %d,flags2: %d\n",pVideoCodeCtx->flags,pVideoCodeCtx->flags2);
 
     sdk_Init(pVideoCodeCtx);
 
@@ -733,7 +734,7 @@ static void *PlayVideoThread (void *args)
     AVFrame *frame = av_frame_alloc();
 
     //none h264 sw decode need transcode to NV12 for disp input
-    if(pVideoCodeCtx->codec_id != AV_CODEC_ID_H264)
+    if(pVideoCodeCtx->codec_id != AV_CODEC_ID_H264 && pVideoCodeCtx->codec_id != AV_CODEC_ID_H265)
     {
         //转换成YUV420P
         pFrameYUV = av_frame_alloc();
@@ -788,11 +789,13 @@ static void *PlayVideoThread (void *args)
     int ret;
 
     //h264 hw decode need bind vdec 2 disp
-    if(pVideoCodeCtx->codec_id == AV_CODEC_ID_H264)
+    if(pVideoCodeCtx->codec_id == AV_CODEC_ID_H264 || pVideoCodeCtx->codec_id == AV_CODEC_ID_H265)
     {
         //Patch for skip avformat_find_stream_info send frame to ss hw decode
-        pVideoCodeCtx->debug = 1;
         sdk_bind();
+        pVideoCodeCtx->debug = 1;
+        pVideoCodeCtx->flags = 0;
+        pVideoCodeCtx->flags2 = 0;
     }
 
     //FILE *fp_yuv = fopen(outVideofilename, "wb+");
@@ -847,6 +850,7 @@ PLAY:
 
         if(packet->stream_index == video_stream_idx)
         {
+            #if 0
             //detect avi format
             if(pVideoCodeCtx->codec_id == AV_CODEC_ID_H264)
             {
@@ -870,6 +874,8 @@ PLAY:
                     } while (1);
                 }
             }
+            #endif
+
             //7.解码一帧视频压缩数据
             ret = avcodec_send_packet(pVideoCodeCtx, packet);
             if(ret < 0)
@@ -883,11 +889,11 @@ PLAY:
             if (ret < 0 && ret != AVERROR(EAGAIN))
             {
                 printf("avcodec_receive_frame fail\n");
-                return ret;
+                //return ret;
             }
             
             //none h264 sw decode need put frame to disp
-            if(pVideoCodeCtx->codec_id != AV_CODEC_ID_H264)
+            if(pVideoCodeCtx->codec_id != AV_CODEC_ID_H264 && pVideoCodeCtx->codec_id != AV_CODEC_ID_H265)
             {
                 if(ret >= 0)
                 {
@@ -933,7 +939,7 @@ PLAY:
                 }
             }
         }
-        av_free_packet(packet);
+        av_packet_unref(packet);
     }
 	int seekflag;
 	seekflag &= ~AVSEEK_FLAG_BYTE;
@@ -941,7 +947,7 @@ PLAY:
 	if(!bExit)
 		goto PLAY;
 	
-    if(pVideoCodeCtx->codec_id == AV_CODEC_ID_H264)
+    if(pVideoCodeCtx->codec_id == AV_CODEC_ID_H264 || pVideoCodeCtx->codec_id == AV_CODEC_ID_H265)
     {
         sdk_Unbind();
     }
@@ -951,12 +957,12 @@ PLAY:
     printf("11\n");
     av_free(out_buffer);
     printf("22\n");
-    if(pVideoCodeCtx->codec_id != AV_CODEC_ID_H264)
+    if(pVideoCodeCtx->codec_id != AV_CODEC_ID_H264 && pVideoCodeCtx->codec_id != AV_CODEC_ID_H265)
     {
-    	av_frame_free(&pFrameYUV);
-    	av_free(Vout_buffer);
+        av_frame_free(&pFrameYUV);
+        av_free(Vout_buffer);
     }
-	printf("33\n");
+    printf("33\n");
     swr_free(&swrCtx);
     printf("44\n");
     avcodec_close(pAudioCodeCtx);
@@ -968,20 +974,20 @@ PLAY:
 
 int StartPlayVideo (char *file,int x,int y,int width,int height)
 {
-	strcpy(pos.filepath,file);
-	pos.x = x;
-	pos.y = y;
-	pos.width = width;
-	pos.height = height;
-	printf("input file: %s,x: %d,y: %d,width: %d,height: %d\n",pos.filepath,pos.x,pos.y,pos.width,pos.height);
-	bExit = false;
-	pthread_create(&PlayThreadID, NULL, PlayVideoThread, NULL);
-	printf("start play video success\n");
-	return 0;
+    strcpy(pos.filepath,file);
+    pos.x = x;
+    pos.y = y;
+    pos.width = width;
+    pos.height = height;
+    printf("input file: %s,x: %d,y: %d,width: %d,height: %d\n",pos.filepath,pos.x,pos.y,pos.width,pos.height);
+    bExit = false;
+    pthread_create(&PlayThreadID, NULL, PlayVideoThread, NULL);
+    printf("start play video success\n");
+    return 0;
 }
 int StopPlayVideo (void)
 {
-	bExit = true;
-	pthread_join(PlayThreadID, NULL);
-	return 0;
+    bExit = true;
+    pthread_join(PlayThreadID, NULL);
+    return 0;
 }
