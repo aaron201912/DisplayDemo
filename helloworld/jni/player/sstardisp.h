@@ -19,17 +19,6 @@ typedef struct stTimingArray_s
 }stTimingArray_t;
 #endif
 
-typedef struct DISP_POS
-{
-	char filepath[64];
-	int x;
-	int y;
-	int width;
-	int height;
-}Pos_t;
-
-Pos_t pos;
-
 int sstar_disp_init(MI_DISP_PubAttr_t* pstDispPubAttr,int inputwidth,int inputheight);
 int sstar_disp_Deinit(MI_DISP_PubAttr_t *pstDispPubAttr);
 

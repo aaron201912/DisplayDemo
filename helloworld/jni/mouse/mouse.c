@@ -191,7 +191,7 @@ int initMouseDev(void)
     }
     //convert data from argb8888 to argb1555
     //Shoule use GE to do bitblit and format convert
-    unsigned char pARGB1555Data[CURSOR_WIDTH*CURSOR_HEIGHT*2] = {0};
+    const char pARGB1555Data[CURSOR_WIDTH*CURSOR_HEIGHT*2] = {0};
     unsigned short* pTemp_16 = (unsigned short*)pARGB1555Data;
     unsigned char* pTemp = buff;
     unsigned int pixelVal_32 = 0;

@@ -4,6 +4,7 @@
 
 #include "mi_sys.h"
 #include "sstardisp.h"
+#include "SsPlayer.h"
 
 #include "mi_panel_datatype.h"
 #include "mi_panel.h"
@@ -54,32 +55,7 @@ int sstar_disp_init(MI_DISP_PubAttr_t *pstDispPubAttr,int inputwidth,int inputhe
     memset(&stInputPortAttr, 0, sizeof(stInputPortAttr));
 
     //MI_SYS_Init();
-#if 0
-    if (pstDispPubAttr->eIntfType == E_MI_DISP_INTF_LCD)
-    {
-        pstDispPubAttr->stSyncInfo.u16Vact = stPanelParam.u16Height;
-        pstDispPubAttr->stSyncInfo.u16Vbb = stPanelParam.u16VSyncBackPorch;
-        pstDispPubAttr->stSyncInfo.u16Vfb = stPanelParam.u16VTotal - (stPanelParam.u16VSyncWidth +
-                                                                      stPanelParam.u16Height + stPanelParam.u16VSyncBackPorch);
-        pstDispPubAttr->stSyncInfo.u16Hact = stPanelParam.u16Width;
-        pstDispPubAttr->stSyncInfo.u16Hbb = stPanelParam.u16HSyncBackPorch;
-        pstDispPubAttr->stSyncInfo.u16Hfb = stPanelParam.u16HTotal - (stPanelParam.u16HSyncWidth +
-                                                                      stPanelParam.u16Width + stPanelParam.u16HSyncBackPorch);
-        pstDispPubAttr->stSyncInfo.u16Bvact = 0;
-        pstDispPubAttr->stSyncInfo.u16Bvbb = 0;
-        pstDispPubAttr->stSyncInfo.u16Bvfb = 0;
-        pstDispPubAttr->stSyncInfo.u16Hpw = stPanelParam.u16HSyncWidth;
-        pstDispPubAttr->stSyncInfo.u16Vpw = stPanelParam.u16VSyncWidth;
-        pstDispPubAttr->stSyncInfo.u32FrameRate = stPanelParam.u16DCLK * 1000000 / (stPanelParam.u16HTotal * stPanelParam.u16VTotal);
-        pstDispPubAttr->eIntfSync = E_MI_DISP_OUTPUT_USER;
-        pstDispPubAttr->eIntfType = E_MI_DISP_INTF_LCD;
-#if USE_MIPI
-		eLinkType = E_MI_PNL_LINK_MIPI_DSI;
-#else
-        eLinkType = E_MI_PNL_LINK_TTL;
-#endif
-    }
-#endif
+
     MI_DISP_DisableInputPort(0, 0);
 	MI_DISP_RotateConfig_t stRotateConfig;
 	memset(&stRotateConfig, 0, sizeof(MI_DISP_RotateConfig_t));
@@ -93,28 +69,11 @@ int sstar_disp_init(MI_DISP_PubAttr_t *pstDispPubAttr,int inputwidth,int inputhe
     stInputPortAttr.stDispWin.u16Y = pos.x;//LOCAL_VIDEO_Y;
     stInputPortAttr.stDispWin.u16Width = pos.height;//inputheight;//pos.height;
     stInputPortAttr.stDispWin.u16Height = pos.width;//inputwidth;//pos.width;
-#if 0
-    MI_DISP_SetPubAttr(0, pstDispPubAttr);
-    MI_DISP_Enable(0);
-    MI_DISP_BindVideoLayer(0, 0);
-    MI_DISP_EnableVideoLayer(0);
-#endif
+
     MI_DISP_SetInputPortAttr(0, 0, &stInputPortAttr);
     MI_DISP_EnableInputPort(0, 0);
     MI_DISP_SetInputPortSyncMode(0, 0, E_MI_DISP_SYNC_MODE_FREE_RUN);
-#if 0
-    if (pstDispPubAttr->eIntfType == E_MI_DISP_INTF_LCD)
-    {
-        MI_PANEL_Init(eLinkType);
-        MI_PANEL_SetPanelParam(&stPanelParam);
-        if(eLinkType == E_MI_PNL_LINK_MIPI_DSI)
-        {
-#if USE_MIPI
-            MI_PANEL_SetMipiDsiConfig(&stMipiDsiConfig);
-#endif
-        }
-    }
-#endif
+
     return 0;
 }
 int sstar_disp_Deinit(MI_DISP_PubAttr_t *pstDispPubAttr)

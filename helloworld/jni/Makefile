@@ -34,7 +34,7 @@ OBJS   = $(addprefix $(OBJS_ROOT_DIR),$(OBJS_2))
 OBJS_DIR_TREE=$(addprefix $(OBJS_ROOT_DIR),$(PROJ_DIR_TREE))
 
 CFLAGS=-Os -pipe  -fno-caller-saves -Wno-unused-result -mfloat-abi=hard -mfpu=vfp -Wformat -Werror=format-security -fstack-protector -D_FORTIFY_SOURCE=1 -Wl,-z,now -Wl,-z,relro -Wl,--warn-common -Wl,--warn-once -Wl,-z,combreloc -Wl,-z,defs 
-CXXFLAGS=-Os -pipe  -fno-caller-saves -Wno-unused-result -mfloat-abi=hard -mfpu=vfp -Wformat -Werror=format-security -fstack-protector -D_FORTIFY_SOURCE=1 -Wl,-z,now -Wl,-z,relro 
+CXXFLAGS=-Os -pipe  -fno-caller-saves -Wno-unused-result -mfloat-abi=hard -mfpu=vfp -Wformat -Werror=format-security -fstack-protector -D_FORTIFY_SOURCE=1 -Wl,-z,now -Wl,-z,relro -Wl,-z,defs
 
 CXXFLAGS+= -fexceptions -fpermissive -Wall -O2 
 
@@ -45,8 +45,8 @@ INCLUDE_DIR := -I$(EASYUI_COMMON_INCLUDE) \
 					-I ../jni/player \
 					-I ../jni/mouse \
 					-I ../jni/player/host/include \
-					-I ../jni/sdkdir/include \
-					-I ../jni/ssplayer
+					-I ../jni/sdkdir/include 
+					
 					
 
 LDFLAGS =  -leasyui -pthread -lmi_sys -lmi_disp -lmi_panel -lmi_ao -lmi_gfx -lmi_divp -lmi_vdec -lmi_common -lstdc++ -lmi_ai -lCSpotter -ldl
