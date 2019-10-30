@@ -2,7 +2,7 @@
 #include "uart/ProtocolSender.h"
 #include "SsPlayer.h"
 #include "mouse.h"
-//#include "tp_api.h"
+#include "tp_api.h"
 #include <config.h>
 /*
 *此文件由GUI工具生成
@@ -139,6 +139,7 @@ static void onUI_show() {
     #if SS_PLAYER_SWITCH
     tp_player_open ("/customer/demo.mp4",20,30,300,200,1);
     #else
+    printf("+++++StartPlayVideo++++++\n");
     StartPlayVideo ("/customer/demo.mp4",20,30,300,200);
     #endif
     initMouseDev();

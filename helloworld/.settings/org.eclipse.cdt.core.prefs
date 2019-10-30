@@ -1,7 +1,7 @@
 eclipse.preferences.version=1
 environment/project/cdt.managedbuild.config.gnu.exe.debug.566211490/CC/delimiter=;
-environment/project/cdt.managedbuild.config.gnu.exe.debug.566211490/CC/operation=append
-environment/project/cdt.managedbuild.config.gnu.exe.debug.566211490/CC/value=arm-pc-linux-gnueabihf-gcc
+environment/project/cdt.managedbuild.config.gnu.exe.debug.566211490/CC/operation=replace
+environment/project/cdt.managedbuild.config.gnu.exe.debug.566211490/CC/value=arm-pc-linux-gnueabihf-g++
 environment/project/cdt.managedbuild.config.gnu.exe.debug.566211490/PATH/delimiter=;
 environment/project/cdt.managedbuild.config.gnu.exe.debug.566211490/PATH/operation=replace
 environment/project/cdt.managedbuild.config.gnu.exe.debug.566211490/PATH/value=${ZKSW_REAL_TOOLCHAIN}/bin

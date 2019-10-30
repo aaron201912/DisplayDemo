@@ -216,7 +216,7 @@ int initMouseDev(void)
     stCursorAttr.stCursorImageInfo.u32Height = CURSOR_HEIGHT;
     stCursorAttr.stCursorImageInfo.u32Pitch = nIconPitch;
     stCursorAttr.stCursorImageInfo.eColorFmt = E_MI_FB_COLOR_FMT_ARGB1555;
-    stCursorAttr.stCursorImageInfo.data = pARGB1555Data;
+    stCursorAttr.stCursorImageInfo.data = pARGB1555Data;//(const char *)pARGB1555Data;
     stCursorAttr.u32HotSpotX = CURSOR_WIDTH;
     stCursorAttr.u32HotSpotY = 8;
     stCursorAttr.u32XPos = 100;
@@ -277,4 +277,5 @@ int initMouseDev(void)
     close(fbFd);
     exit(0);
 #endif
+    return 0;
 }

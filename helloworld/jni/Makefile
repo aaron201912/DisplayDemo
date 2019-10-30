@@ -45,8 +45,8 @@ INCLUDE_DIR := -I$(EASYUI_COMMON_INCLUDE) \
 					-I ../jni/player \
 					-I ../jni/mouse \
 					-I ../jni/player/host/include \
-					-I ../jni/sdkdir/include 
-					
+					-I ../jni/sdkdir/include \
+					-I ../jni/ssplayer
 					
 
 LDFLAGS =  -leasyui -pthread -lmi_sys -lmi_disp -lmi_panel -lmi_ao -lmi_gfx -lmi_divp -lmi_vdec -lmi_common -lstdc++ -lmi_ai -lCSpotter -ldl
