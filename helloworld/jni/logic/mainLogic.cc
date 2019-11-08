@@ -33,6 +33,9 @@
 *
 * 在Eclipse编辑器中  使用 “alt + /”  快捷键可以打开智能提示
 */
+
+//#define USE_TIMER
+
 #if UI_1024_600
 #define PANEL_WIDTH		    600
 #define PANEL_HEIGHT	    1024
@@ -52,6 +55,8 @@
 #define TEXT_POS_START      (PANEL_HEIGHT - TEXT_WADGET_HEIGHT)
 #define TEXT_POS_END        PANEL_HEIGHT
 #endif
+
+static bool g_bExit = false;
 
 static void updateAnimation() {
     char path[64];
@@ -103,6 +108,19 @@ static void updateAnimation() {
 
 }
 
+class ChangeBgPicThread : public Thread {
+protected:
+	virtual bool threadLoop() {
+		if (g_bExit)
+			return true;
+
+		updateAnimation();
+		usleep(1000000);
+		return true;
+	}
+};
+
+static ChangeBgPicThread changeBgPicThread;
 /**
  * 注册定时器
  * 填充数组用于注册定时器
@@ -110,7 +128,9 @@ static void updateAnimation() {
  */
 static S_ACTIVITY_TIMEER REGISTER_ACTIVITY_TIMER_TAB[] = {
 	//{0,  6000}, //定时器id=0, 时间间隔6秒
+#ifdef USE_TIMER
 	{1,  1000},
+#endif
 };
 
 /**
@@ -121,6 +141,12 @@ static void onUI_init(){
     system("echo 12 > /sys/class/gpio/export");
     system("echo out > /sys/class/gpio/gpio12/direction");
     system("echo 1 > /sys/class/gpio/gpio12/value");
+
+#ifndef USE_TIMER
+	g_bExit = false;
+	if (!changeBgPicThread.isRunning())
+		changeBgPicThread.run("chgBgPic");
+#endif
 }
 
 /**
@@ -156,7 +182,10 @@ static void onUI_hide() {
  * 当界面完全退出时触发
  */
 static void onUI_quit() {
-
+#ifndef USE_TIMER
+	g_bExit = true;
+	changeBgPicThread.requestExitAndWait();
+#endif
 }
 
 /**
