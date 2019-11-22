@@ -332,8 +332,8 @@ int player_deinit(player_stat_t *is)
     pthread_cond_destroy(&is->continue_read_thread);
     printf("pthread_cond_destroy finish\n");
 
-    sws_freeContext(is->img_convert_ctx);
-    printf("sws_freeContext finish\n");
+    //sws_freeContext(is->img_convert_ctx);
+    //printf("sws_freeContext finish\n");
 
     av_free(is->filename);
     printf("av_free file name finish\n");

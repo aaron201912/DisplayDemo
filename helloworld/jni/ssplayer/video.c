@@ -359,6 +359,7 @@ static void video_display(player_stat_t *is)
     //gettimeofday(&trans_start, NULL);
     
     if (is->decoder_type == SOFT_DECODING) {
+        #if 0
         sws_scale(is->img_convert_ctx,                    // sws context
                   (const uint8_t *const *)vp->frame->data,// src slice
                   vp->frame->linesize,                    // src stride
@@ -370,6 +371,7 @@ static void video_display(player_stat_t *is)
 
         frame_ydata  = is->p_frm_yuv->data[0];
         frame_uvdata = is->p_frm_yuv->data[1];
+        #endif
     } else if (is->decoder_type == HARD_DECODING) {
         frame_ydata  = vp->frame->data[0];
         frame_uvdata = vp->frame->data[1];
@@ -736,7 +738,8 @@ static int open_video_playing(void *arg)
     int buf_size;
     uint8_t* buffer = NULL;
     const AVPixFmtDescriptor *desc;
-   
+
+    #if 0
     // 为AVFrame.*data[]手工分配缓冲区，用于存储sws_scale()中目的帧视频数据
     buf_size = av_image_get_buffer_size(AV_PIX_FMT_NV12, 
                                         is->out_width,
@@ -791,6 +794,7 @@ static int open_video_playing(void *arg)
         printf("sws_getContext() failed\n");
         return -1;
     }
+    #endif
 
     CheckFuncResult(pthread_create(&is->videoPlay_tid, NULL, video_playing_thread, is));
 
@@ -823,8 +827,9 @@ static int open_video_stream(player_stat_t *is)
             break;
 
         default : 
-            p_codec = avcodec_find_decoder(p_codec_par->codec_id); 
-            is->decoder_type = SOFT_DECODING;
+            //p_codec = avcodec_find_decoder(p_codec_par->codec_id);
+            //is->decoder_type = SOFT_DECODING;
+            printf("Error: video is not H264 or H265 encoding!\n");
             break;
     }
 

@@ -731,7 +731,22 @@ static void *PlayVideoThread (void *args)
         goto EXIT1;
     }
 
-    pVideoCodec = avcodec_find_decoder(pVideoCodeCtx->codec_id);
+    //pVideoCodec = avcodec_find_decoder(pVideoCodeCtx->codec_id);
+    switch(pVideoCodeCtx->codec_id)
+    {
+        case AV_CODEC_ID_H264 :
+        	pVideoCodec = avcodec_find_decoder_by_name("ssh264");
+            break;
+
+        case AV_CODEC_ID_HEVC :
+        	pVideoCodec = avcodec_find_decoder_by_name("sshevc");
+            break;
+
+        default :
+        	pVideoCodec = NULL;
+            printf("Error: video is not H264 or H265 encoding!\n");
+            break;
+    }
     if (pVideoCodec == NULL) {
         printf("%s %d fail!\n",__FUNCTION__,__LINE__);
         goto EXIT1;
@@ -752,6 +767,7 @@ static void *PlayVideoThread (void *args)
     //解压缩数据
     frame = av_frame_alloc();
 
+    #if 0
     //none h264 sw decode need transcode to NV12 for disp input
     if(pVideoCodeCtx->codec_id != AV_CODEC_ID_H264 && pVideoCodeCtx->codec_id != AV_CODEC_ID_H265)
     {
@@ -768,6 +784,7 @@ static void *PlayVideoThread (void *args)
                                                 pVideoCodeCtx->width, pVideoCodeCtx->height, AV_PIX_FMT_NV12,
                                                 SWS_BICUBIC, NULL, NULL, NULL);
     }
+    #endif
 
     //frame->16bit 44100 PCM 统一音频采样格式与采样率
     swrCtx = swr_alloc();
@@ -880,6 +897,7 @@ PLAY:
                 goto EXIT2;
             }
             
+            #if 0
             //none h264 sw decode need put frame to disp
             if(pVideoCodeCtx->codec_id != AV_CODEC_ID_H264 && pVideoCodeCtx->codec_id != AV_CODEC_ID_H265)
             {
@@ -921,6 +939,7 @@ PLAY:
                     }
                 }
             }
+            #endif
         }
         av_packet_unref(packet);
     }
