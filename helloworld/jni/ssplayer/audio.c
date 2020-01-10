@@ -36,9 +36,8 @@
 
 #define MI_AO_PCM_BUF_SIZE_BYTE     (MI_AUDIO_MAX_SAMPLES_PER_FRAME * MI_AUDIO_MAX_FRAME_NUM * 2 * 4)
 
-static int fda;
 static void sdl_audio_callback(void *opaque, uint8_t *stream, int len);
-extern AVPacket flush_pkt;
+extern AVPacket a_flush_pkt;
 
 // 从packet_queue中取一个packet，解码生成frame
 static int audio_decode_frame(AVCodecContext *p_codec_ctx, packet_queue_t *p_pkt_queue, AVFrame *frame)
@@ -101,7 +100,7 @@ static int audio_decode_frame(AVCodecContext *p_codec_ctx, packet_queue_t *p_pkt
         //if(pkt.data)
             //printf("read audio pkt end: %x,%x,%x\n",pkt.data[0],pkt.data[1],pkt.data[2]);
         // packet_queue中第一个总是flush_pkt。每次seek操作会插入flush_pkt，更新serial，开启新的播放序列
-        if (pkt.data == flush_pkt.data)
+        if (pkt.data == a_flush_pkt.data)
         {
             // 复位解码器内部状态/刷新内部缓冲区。当seek操作或切换流时应调用此函数。
             avcodec_flush_buffers(p_codec_ctx);

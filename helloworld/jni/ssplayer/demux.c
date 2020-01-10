@@ -3,7 +3,7 @@
 #include "frame.h"
 #include <sys/time.h>
 
-extern AVPacket flush_pkt;
+extern AVPacket a_flush_pkt, v_flush_pkt;
 
 
 static int decode_interrupt_cb(void *ctx)
@@ -201,11 +201,11 @@ static void * demux_thread(void *arg)
             } else {
                 if (is->audio_idx >= 0) {
                     packet_queue_flush(&is->audio_pkt_queue);
-                    packet_queue_put(&is->audio_pkt_queue, &flush_pkt);
+                    packet_queue_put(&is->audio_pkt_queue, &a_flush_pkt);
                 }
                 if (is->video_idx >= 0) {
                     packet_queue_flush(&is->video_pkt_queue);
-                    packet_queue_put(&is->video_pkt_queue, &flush_pkt);
+                    packet_queue_put(&is->video_pkt_queue, &v_flush_pkt);
                 }
                 /*
                 if (is->seek_flags & AVSEEK_FLAG_BYTE) {

@@ -18,8 +18,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 
-static int fdv;
-extern AVPacket flush_pkt;
+extern AVPacket v_flush_pkt;
 
 static int sstar_nv12_rotate90(AVFrame *dst, AVFrame *src, int width, int height)
 {
@@ -168,7 +167,7 @@ static int video_decode_frame(AVCodecContext *p_codec_ctx, packet_queue_t *p_pkt
             return -1;
         }
 
-        if (pkt.data == flush_pkt.data)
+        if (pkt.data == v_flush_pkt.data)
         {
             // 复位解码器内部状态/刷新内部缓冲区。
             avcodec_flush_buffers(p_codec_ctx);
@@ -713,7 +712,7 @@ int sstar_video_init(player_stat_t *is, uint16_t x, uint16_t y)
     MI_DISP_EnableInputPort(0, 0);
     MI_DISP_SetInputPortSyncMode(0, 0, E_MI_DISP_SYNC_MODE_FREE_RUN);
 
-    MI_VDEC_SetOutputPortLayoutMode(E_MI_VDEC_OUTBUF_LAYOUT_TILE);
+    //MI_VDEC_SetOutputPortLayoutMode(E_MI_VDEC_OUTBUF_LAYOUT_TILE);
 
     return 0;
 }
@@ -870,8 +869,8 @@ static int open_video_stream(player_stat_t *is)
         return -1;
     }
 
-    //if (!avcodec_is_open(p_codec_ctx) || !av_codec_is_decoder(p_codec_ctx->codec))
-    //    printf("init avcodec failed!\n");
+    //配置tilemode用于旋转
+    MI_VDEC_SetOutputPortLayoutMode(E_MI_VDEC_OUTBUF_LAYOUT_TILE);
 
     is->p_vcodec_ctx = p_codec_ctx;
     is->p_vcodec_ctx->debug = true;

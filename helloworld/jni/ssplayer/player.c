@@ -28,7 +28,7 @@
 #include "audio.h"
 #include "tp_api.h"
 
-AVPacket flush_pkt;
+AVPacket a_flush_pkt, v_flush_pkt;
 static int av_sync_type = AV_SYNC_AUDIO_MASTER;
 static float seek_interval = 10;
 
@@ -256,11 +256,13 @@ player_stat_t *player_init(const char *p_input_file)
         goto fail;
     }
 
-    av_init_packet(&flush_pkt);
-    flush_pkt.data = (uint8_t *)&flush_pkt;
+    av_init_packet(&a_flush_pkt);
+    av_init_packet(&v_flush_pkt);
+    a_flush_pkt.data = (uint8_t *)&a_flush_pkt;
+    v_flush_pkt.data = (uint8_t *)&v_flush_pkt;
 
-    packet_queue_put(&is->video_pkt_queue, &flush_pkt);
-    packet_queue_put(&is->audio_pkt_queue, &flush_pkt);
+    packet_queue_put(&is->video_pkt_queue, &a_flush_pkt);
+    packet_queue_put(&is->audio_pkt_queue, &v_flush_pkt);
 
     CheckFuncResult(pthread_cond_init(&is->continue_read_thread,NULL));
 
@@ -283,6 +285,7 @@ fail:
     frame_queue_destory(&is->audio_frm_queue);
     packet_queue_flush(&is->video_pkt_queue);
     packet_queue_flush(&is->audio_pkt_queue);
+    pthread_cond_destroy(&is->continue_read_thread);
     av_frame_free(&is->p_frm_yuv);
     av_freep(&is);
 
